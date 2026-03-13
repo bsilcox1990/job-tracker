@@ -28,20 +28,27 @@ export default function JobForm({onAdd}: Props){
 
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex gap-3 mb-4">
             <input
                 placeholder="Company"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
+                className="border rounded-lg px-3 py-2 w-full"
             />
 
             <input
                 placeholder="Role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
+                className="border rounded-lg px-3 py-2 w-full"
             />
 
-            <button type="submit">Add Job</button>
+            <button 
+                type="submit"
+                className="!bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+                Add Job
+            </button>
         </form>
     )
 }

@@ -11,19 +11,31 @@ function App() {
   }
 
   return (
-    <>
-     <h1>Developer Job Tracker</h1>
+    <div className="min-h-screen bg-gray-100 flex justify-center p-8">
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-6">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          <JobForm onAdd={addJob} />
 
-     <JobForm onAdd={addJob} />
+          <div className="mt-6 space-y-4">
+            {jobs.map((job) => (
+              <div 
+                key={job.id}
+                className="border rounded-lg p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="font-semibold text-lg text-left">{job.company}</h3>
+                  <p className="text-gray-600">{job.role}</p>
+                </div>
 
-     <ul>
-      {jobs.map((job) => (
-          <li key={job.id}>
-            {job.company} - {job.role} ({job.status})
-          </li>
-      ))}
-     </ul>
-    </>
+                <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                  {job.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </h1>
+      </div>
+    </div>
   )
 }
 
