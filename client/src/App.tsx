@@ -16,6 +16,14 @@ function App() {
     setJobs([...jobs, job]);
   }
 
+  const handleDelete = async (id: number) => {
+    await fetch(`http://localhost:5000/jobs/${id}`, {
+      method: "DELETE",
+    });
+
+    setJobs(jobs.filter((job) => job.id !== id));
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center p-8">
       <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-6">
@@ -36,6 +44,10 @@ function App() {
                 <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                   {job.status}
                 </span>
+
+                <button onClick={() => handleDelete(job.id)}>
+                  Delete
+                </button>
               </div>
             ))}
           </div>

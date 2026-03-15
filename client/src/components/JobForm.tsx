@@ -8,22 +8,31 @@ interface Props {
 export default function JobForm({onAdd}: Props){
     const [company, setCompany] = useState("");
     const [role, setRole] = useState("");
+    const [notes, setNotes] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const newJob: Job = {
-            id:crypto.randomUUID(),
-            company,
-            role,
-            status: "Applied",
-            dateApplied: new Date().toISOString(),
-        }
+        const response = await fetch("http://localhost:5000/jobs", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                company,
+                role,
+                notes,
+                status: "Applied"
+            })
+        });
+
+        const newJob = await response.json();
 
         onAdd(newJob);
     
         setCompany("");
         setRole("");
+        setNotes("");
     }
 
 
@@ -40,6 +49,13 @@ export default function JobForm({onAdd}: Props){
                 placeholder="Role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
+                className="border rounded-lg px-3 py-2 w-full"
+            />
+
+            <input 
+                placeholder="Notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 className="border rounded-lg px-3 py-2 w-full"
             />
 

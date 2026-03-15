@@ -1,9 +1,9 @@
 export interface Job {
-    id: string
+    id: number
     company: string
     role: string
     status: "Applied" | "Interview" | "Offer" | "Rejected"
-    dateApplied: string
+    date_applied: string
     link?: string
     notes?: string
 }

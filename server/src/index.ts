@@ -9,10 +9,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/jobs", jobsRouter);
 
-app.get("/", (req, res) => {
-    res.send("Job Tracker API running");
-})
-
 const PORT = 5000;
 
 async function startServer(){
