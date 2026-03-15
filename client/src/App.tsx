@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Job } from './types/Job'
 import JobForm from './components/JobForm'
 import './App.css'
 
 function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/jobs")
+      .then((res) => res.json())
+      .then((data) => setJobs(data));
+  }, []);
 
   const addJob = (job: Job) => {
     setJobs([...jobs, job]);

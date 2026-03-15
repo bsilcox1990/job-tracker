@@ -20,4 +20,16 @@ router.post("/", async (req, res) => {
     }
 });
 
+router.get("/", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM jobs ORDER BY date_applied DESC"
+        );
+        res.json(result.rows);
+    } catch (error){
+        console.error(error);
+        res.status(500).json({error: "Failed to fetch jobs"});
+    }
+})
+
 export default router;
