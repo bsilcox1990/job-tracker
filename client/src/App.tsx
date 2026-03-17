@@ -6,16 +6,23 @@ import './App.css'
 function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [filterStatus, setFilterStatus] = useState("All");
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
   const rejectedCount = jobs.filter((job) => job.status === "Rejected").length;
+  
+  const filteredJobs = jobs.filter((job) => {
+    if(filterStatus === "All") return true;
+    return job.status === filterStatus;
+  })
 
   useEffect(() => {
     fetch("http://localhost:5000/jobs")
       .then((res) => res.json())
       .then((data) => setJobs(data));
   }, []);
+
 
   const addJob = (job: Job) => {
     setJobs([...jobs, job]);
@@ -89,8 +96,27 @@ function App() {
         <h2 className="text-3xl font-bold text-center mb-6">
           <JobForm onAdd={addJob} />
 
+          <div className="flex items-center gap-3 mb-6 bg-gray-50 p-3 rounded-lg">
+
+            <span className="text-sm text-gray-600 font-medium">
+              Filter by status:
+            </span>
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All</option>
+              <option value="Applied">Applied</option>
+              <option value="Interview">Interview</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+
           <div className="mt-6 space-y-4">
-            {jobs.map((job) => (
+            {filteredJobs.map((job) => (
               <div 
                 key={job.id}
                 className="border rounded-lg p-4 shadow-sm"
