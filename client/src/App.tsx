@@ -5,6 +5,7 @@ import './App.css'
 
 function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -92,33 +93,51 @@ function App() {
             {jobs.map((job) => (
               <div 
                 key={job.id}
-                className="border rounded-lg p-4 shadow-sm flex justify-between items-center"
+                className="border rounded-lg p-4 shadow-sm"
               >
-                <div>
-                  <h3 className="font-semibold text-lg text-left">{job.company}</h3>
-                  <p className="text-gray-600">{job.role}</p>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold text-lg text-left">{job.company}</h3>
+                    <p className="text-gray-600">{job.role}</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className={`px-2 py-1 rounded text-sm ${getStatusColor(job.status)}`}>
+                      <select
+                        value={job.status}
+                        onChange={(e) => handleStatusChange(job.id, e.target.value)}
+                        className="bg-transparent outline-none"
+                      >
+                        <option value="Applied">Applied</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Offer">Offer</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </div>
+                    <button
+                      onClick={() => handleDelete(job.id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
 
-                <div className={`px-2 py-1 rounded text-sm ${getStatusColor(job.status)}`}>
-                  <select
-                    value={job.status}
-                    onChange={(e) => handleStatusChange(job.id, e.target.value)}
-                    className="bg-transparent outline-none"
-                  >
-                    <option value="Applied">Applied</option>
-                    <option value="Interview">Interview</option>
-                    <option value="Offer">Offer</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-                </div>
-
-                <button 
-                  onClick={() => handleDelete(job.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+              <button
+                onClick={() => 
+                  setExpandedId(expandedId === job.id ? null : job.id)
+                }
+                className="text-blue-500 text-sm mt-2"
                 >
-                  Delete
-                </button>
-              </div>
+                {expandedId === job.id ? "Hide Notes" : "View Notes"}
+              </button>
+
+              {expandedId === job.id && job.notes && (
+                <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                  <div className="text-xs text-gray-500 mb-1">Notes</div>
+                  {job.notes}
+                </div>
+              )}
+            </div>
             ))}
           </div>
         </h2>
