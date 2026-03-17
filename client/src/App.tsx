@@ -28,6 +28,22 @@ function App() {
     setJobs(jobs.filter((job) => job.id !== id));
   }
 
+  const handleStatusChange = async (id: number, status: string) => {
+    const response = await fetch(`http://localhost:5000/jobs/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({status}),
+    })
+
+    const updatedJob = await response.json();
+
+    setJobs(
+      jobs.map((job) => (job.id === id ? updatedJob : job))
+    )
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
@@ -83,9 +99,18 @@ function App() {
                   <p className="text-gray-600">{job.role}</p>
                 </div>
 
-                <span className={`text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full ${getStatusColor(job.status)}`}>
-                  {job.status}
-                </span>
+                <div className={`px-2 py-1 rounded text-sm ${getStatusColor(job.status)}`}>
+                  <select
+                    value={job.status}
+                    onChange={(e) => handleStatusChange(job.id, e.target.value)}
+                    className="bg-transparent outline-none"
+                  >
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
 
                 <button 
                   onClick={() => handleDelete(job.id)}

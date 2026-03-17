@@ -42,4 +42,21 @@ router.delete("/:id", async (req, res) => {
     res.json({ message: "Job deleted" });
 })
 
+router.put("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const result = await pool.query(
+            "UPDATE jobs SET status = $1 WHERE id = $2 RETURNING *",
+            [status, id]
+        );
+
+        res.json(result.rows[0]);
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update job status" });
+    }
+})
+
 export default router;
