@@ -8,6 +8,7 @@ function App() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -20,11 +21,18 @@ function App() {
   })
 
   useEffect(() => {
-    fetch("http://localhost:5000/jobs")
-      .then((res) => res.json())
-      .then((data) => setJobs(data));
-  }, []);
+    const fetchJobs = async () => {
+      setLoading(true);
 
+      const res = await fetch("http://localhost:5000/jobs");
+      const data = await res.json();
+
+      setJobs(data);
+      setLoading(false);
+    }
+
+    fetchJobs();
+  }, []);
 
   const addJob = (job: Job) => {
     setJobs([...jobs, job]);
@@ -126,8 +134,11 @@ function App() {
           </div>
 
           <div className="mt-6 space-y-4">
-            {filteredJobs.length === 0 ? (
-              <p className = "text-gray-500 text-sm text-center mt-6">No jobs found</p>
+            {loading ? (
+              <p className="text-gray-500 text-center mt-6">Loading jobs...</p>
+            ) :
+            filteredJobs.length === 0 ? (
+              <p className = "text-gray-500 text-sm text-center mt-6">No jobs yet — start applying</p>
             ) : (
             filteredJobs.map((job) => (
               <div 
