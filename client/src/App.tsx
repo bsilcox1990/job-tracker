@@ -7,14 +7,16 @@ function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
   const rejectedCount = jobs.filter((job) => job.status === "Rejected").length;
   
   const filteredJobs = jobs.filter((job) => {
-    if(filterStatus === "All") return true;
-    return job.status === filterStatus;
+    if(filterStatus !== "All" && job.status !== filterStatus) return false;
+
+    return job.company.toLowerCase().includes(searchTerm.toLowerCase());
   })
 
   useEffect(() => {
@@ -98,6 +100,14 @@ function App() {
 
           <div className="flex items-center gap-3 mb-6 bg-gray-50 p-3 rounded-lg">
 
+            <input 
+              type="text"
+              placeholder="Search company..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full max-w-xs focus-outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
             <span className="text-sm text-gray-600 font-medium">
               Filter by status:
             </span>
@@ -116,7 +126,10 @@ function App() {
           </div>
 
           <div className="mt-6 space-y-4">
-            {filteredJobs.map((job) => (
+            {filteredJobs.length === 0 ? (
+              <p className = "text-gray-500 text-sm text-center mt-6">No jobs found</p>
+            ) : (
+            filteredJobs.map((job) => (
               <div 
                 key={job.id}
                 className="border rounded-lg p-4 shadow-sm"
@@ -148,23 +161,23 @@ function App() {
                   </div>
                 </div>
 
-              <button
-                onClick={() => 
-                  setExpandedId(expandedId === job.id ? null : job.id)
-                }
-                className="text-blue-500 text-sm mt-2"
+                <button
+                  onClick={() => 
+                    setExpandedId(expandedId === job.id ? null : job.id)
+                  }
+                  className="text-blue-500 text-sm mt-2"
                 >
-                {expandedId === job.id ? "Hide Notes" : "View Notes"}
-              </button>
+                  {expandedId === job.id ? "Hide Notes" : "View Notes"}
+                </button>
 
-              {expandedId === job.id && job.notes && (
-                <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
-                  <div className="text-xs text-gray-500 mb-1">Notes</div>
-                  {job.notes}
-                </div>
-              )}
+                {expandedId === job.id && job.notes && (
+                  <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                    <div className="text-xs text-gray-500 mb-1">Notes</div>
+                     {job.notes}
+                  </div>
+                )}
             </div>
-            ))}
+            )))}
           </div>
         </h2>
       </div>
