@@ -219,6 +219,7 @@ function App() {
                 onClose={() => setEditingJob(null)}
                 onSave={handleUpdateJob}
                 loading={loading}
+                setLoading={setLoading}
               />
             )}
         </h2>
