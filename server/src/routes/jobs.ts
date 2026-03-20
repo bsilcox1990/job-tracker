@@ -45,11 +45,14 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { company, role, status, notes } = req.body;
 
         const result = await pool.query(
-            "UPDATE jobs SET status = $1 WHERE id = $2 RETURNING *",
-            [status, id]
+            `UPDATE jobs
+            SET company=$1, role=$2, status=$3, notes=$4, updated_at=NOW()
+            WHERE id=$5
+            RETURNING *`,
+            [company, role, status, notes ?? null, id]
         );
 
         res.json(result.rows[0]);

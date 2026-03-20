@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Job } from './types/Job'
 import JobForm from './components/JobForm'
 import './App.css'
+import EditJobModal from './components/EditJobModal'
 
 function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -9,6 +10,7 @@ function App() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -17,7 +19,7 @@ function App() {
   const filteredJobs = jobs.filter((job) => {
     if(filterStatus !== "All" && job.status !== filterStatus) return false;
 
-    return job.company.toLowerCase().includes(searchTerm.toLowerCase());
+    return (job.company || "").toLowerCase().includes(searchTerm.toLowerCase());
   })
 
   useEffect(() => {
@@ -46,20 +48,31 @@ function App() {
     setJobs(jobs.filter((job) => job.id !== id));
   }
 
+  const handleUpdateJob = (updatedJob: Job) => {
+    setJobs((prev) => 
+      prev.map((job) => (job.id === updatedJob.id ? updatedJob : job))
+    );
+  }
+
   const handleStatusChange = async (id: number, status: string) => {
+    const job = jobs.find((j) => j.id === id);
+
     const response = await fetch(`http://localhost:5000/jobs/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({status}),
+      body: JSON.stringify({
+        ...job,
+        status
+      }),
     })
 
     const updatedJob = await response.json();
 
-    setJobs(
-      jobs.map((job) => (job.id === id ? updatedJob : job))
-    )
+    setJobs((prev) =>
+      prev.map((j) => (j.id === id ? updatedJob : j)) 
+    );
   }
 
   const getStatusColor = (status: string) => {
@@ -147,13 +160,13 @@ function App() {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-semibold text-lg text-left">{job.company}</h3>
+                    <h3 className="text-gray-600 text-left">{job.company}</h3>
                     <p className="text-gray-600">{job.role}</p>
                   </div>
                   <div className="flex gap-4">
                     <div className={`px-2 py-1 rounded text-sm ${getStatusColor(job.status)}`}>
                       <select
-                        value={job.status}
+                        value={job.status || "Applied"}
                         onChange={(e) => handleStatusChange(job.id, e.target.value)}
                         className="bg-transparent outline-none"
                       >
@@ -172,14 +185,23 @@ function App() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => 
-                    setExpandedId(expandedId === job.id ? null : job.id)
-                  }
-                  className="text-blue-500 text-sm mt-2"
-                >
-                  {expandedId === job.id ? "Hide Notes" : "View Notes"}
-                </button>
+                <div className="flex gap-3 mt-2 justify-center">
+                  <button
+                    onClick={() =>
+                      setExpandedId(expandedId === job.id ? null : job.id)
+                    }
+                    className="text-blue-500 text-sm mt-2 cursor-pointer"
+                  >
+                    {expandedId === job.id ? "Hide Notes" : "View Notes"}
+                  </button>
+
+                  <button
+                    className="text-blue-500 text-sm mt-2 cursor-pointer"
+                    onClick={() => setEditingJob(job)}
+                  >
+                    Edit
+                  </button>
+                </div>
 
                 {expandedId === job.id && job.notes && (
                   <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
@@ -187,9 +209,18 @@ function App() {
                      {job.notes}
                   </div>
                 )}
+
             </div>
             )))}
           </div>
+            {editingJob && (
+              <EditJobModal
+                job={editingJob}
+                onClose={() => setEditingJob(null)}
+                onSave={handleUpdateJob}
+                loading={loading}
+              />
+            )}
         </h2>
       </div>
     </div>
