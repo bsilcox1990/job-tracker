@@ -1,16 +1,16 @@
 import type { Job } from "../types/Job"
 import { useState, useEffect } from "react";
+import { useUpdateJob } from "../hooks/useUpdateJob";
 
 type Props = {
     job: Job;
     onClose: () => void;
     onSave: (updatedJob: Job) => void;
-    loading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function EditJobModal({job, onClose, onSave, loading, setLoading}: Props){
+export default function EditJobModal({job, onClose, onSave }: Props){
     const [form, setForm] = useState({...job, notes: job.notes || ""});
+    const { updateJob, loading, error, setError } = useUpdateJob();
 
     const buttonStyles = "px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer";
     const saveButton = `${buttonStyles} bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed !bg-blue-600`
@@ -23,35 +23,41 @@ export default function EditJobModal({job, onClose, onSave, loading, setLoading}
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
-        setLoading(true);
-
         try {
-            const res = await fetch(`http://localhost:5000/jobs/${job.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(form),
-        });
-
-            const data = await res.json();
-            onSave(data);
+            const updated = await updateJob(form);
+            onSave(updated);
             onClose();
         } catch (error) {
-            console.error("Failed to update job", error);
-        } finally {
-            setLoading(false);
+            console.error(error);
         }
+
+        
     }
 
     useEffect(() => {
         setForm({...job, notes: job.notes || ""})
     }, [job]);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && !loading) {
+                onClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    }, [onClose, loading]);
+
     return(
         <div 
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            onClick={onClose}
+            onClick={() => {
+                if (!loading) onClose();
+            }}
         >
             <div 
                 className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scaleIn space-y-3"
@@ -96,6 +102,21 @@ export default function EditJobModal({job, onClose, onSave, loading, setLoading}
                         <option>Offer</option>
                         <option>Rejected</option>
                     </select>
+
+                    {error && (
+                        <div className="flex justify-between items-center bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm">
+                            <span>{error}</span>
+                            <button 
+                                className="cursor-pointer" 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setError(null);
+                                }}>X</button>
+                        </div>
+                    )
+
+                    }
+
                     <div className="flex justify-end gap-2 mt-6">
                         <button
                             type="button"
