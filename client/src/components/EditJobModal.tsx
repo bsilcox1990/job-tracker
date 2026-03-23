@@ -1,5 +1,5 @@
 import type { Job } from "../types/Job"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUpdateJob } from "../hooks/useUpdateJob";
 
 type Props = {
@@ -11,6 +11,11 @@ type Props = {
 export default function EditJobModal({job, onClose, onSave }: Props){
     const [form, setForm] = useState({...job, notes: job.notes || ""});
     const { updateJob, loading, error, setError } = useUpdateJob();
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
 
     const buttonStyles = "px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer";
     const saveButton = `${buttonStyles} bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed !bg-blue-600`
@@ -76,6 +81,7 @@ export default function EditJobModal({job, onClose, onSave }: Props){
                         onChange={handleChange}
                         className="w-full border rounded-lg p-2"
                         placeholder="Company"
+                        ref={inputRef}
                     />
                     <input
                         name="role"
