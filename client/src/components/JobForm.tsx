@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Job } from "../types/Job";
 import toast from "react-hot-toast";
+import useCreateJob from "../hooks/useCreateJob";
 
 interface Props {
     onAdd: (job: Job) => void
@@ -10,26 +11,19 @@ export default function JobForm({onAdd}: Props){
     const [company, setCompany] = useState("");
     const [role, setRole] = useState("");
     const [notes, setNotes] = useState("");
+    const { createJob, loading } = useCreateJob();
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         const toastId = toast.loading("Creating job...");
 
         try {
-        const response = await fetch("http://localhost:5000/jobs", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                company,
-                role,
-                notes,
-                status: "Applied"
-            })
+        const newJob = await createJob({
+            company,
+            role,
+            notes,
+            status: "Applied"
         });
-
-        const newJob = await response.json();
 
         onAdd(newJob);
 
@@ -38,7 +32,7 @@ export default function JobForm({onAdd}: Props){
         setCompany("");
         setRole("");
         setNotes("");
-        
+
         } catch(error: any) {
             toast.error("Failed to add job", {id: toastId});
         }
@@ -71,9 +65,10 @@ export default function JobForm({onAdd}: Props){
 
             <button 
                 type="submit"
+                disabled={loading}
                 className="!bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-                Add Job
+                {loading ? "Adding..." : "Add Job"}
             </button>
         </form>
     )

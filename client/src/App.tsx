@@ -5,14 +5,16 @@ import './App.css'
 import EditJobModal from './components/EditJobModal'
 import { Toaster } from 'react-hot-toast'
 import toast from "react-hot-toast";
+import useDeleteJob from "./hooks/useDeleteJob";
+import useJobs from './hooks/useJobs'
 
 function App() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const { jobs, loading, setJobs } = useJobs();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const { deleteJob, loading: deleting } = useDeleteJob();
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -24,20 +26,6 @@ function App() {
     return (job.company || "").toLowerCase().includes(searchTerm.toLowerCase());
   })
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true);
-
-      const res = await fetch("http://localhost:5000/jobs");
-      const data = await res.json();
-
-      setJobs(data);
-      setLoading(false);
-    }
-
-    fetchJobs();
-  }, []);
-
   const addJob = (job: Job) => {
     setJobs([...jobs, job]);
   }
@@ -47,9 +35,7 @@ function App() {
 
     try {
     
-      await fetch(`http://localhost:5000/jobs/${id}`, {
-        method: "DELETE",
-      });
+      await deleteJob(id);
 
       setJobs(jobs.filter((job) => job.id !== id));
 

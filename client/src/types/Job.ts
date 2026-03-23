@@ -7,3 +7,10 @@ export interface Job {
     link?: string
     notes?: string
 }
+
+export interface NewJob {
+    company: string
+    role: string
+    notes?: string
+    status: string
+}
