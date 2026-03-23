@@ -1,6 +1,7 @@
 import type { Job } from "../types/Job"
 import { useState, useEffect, useRef } from "react";
 import { useUpdateJob } from "../hooks/useUpdateJob";
+import toast from "react-hot-toast";
 
 type Props = {
     job: Job;
@@ -27,13 +28,17 @@ export default function EditJobModal({job, onClose, onSave }: Props){
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        const toastId = toast.loading("Updating job...");
 
         try {
             const updated = await updateJob(form);
+
+            toast.success("Job updated successfully", {id: toastId});
+
             onSave(updated);
             onClose();
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update job", {id: toastId});
         }
 
         

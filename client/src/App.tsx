@@ -3,6 +3,8 @@ import type { Job } from './types/Job'
 import JobForm from './components/JobForm'
 import './App.css'
 import EditJobModal from './components/EditJobModal'
+import { Toaster } from 'react-hot-toast'
+import toast from "react-hot-toast";
 
 function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -41,11 +43,20 @@ function App() {
   }
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:5000/jobs/${id}`, {
-      method: "DELETE",
-    });
+    const toastId = toast.loading("Deleting job...");
 
-    setJobs(jobs.filter((job) => job.id !== id));
+    try {
+    
+      await fetch(`http://localhost:5000/jobs/${id}`, {
+        method: "DELETE",
+      });
+
+      setJobs(jobs.filter((job) => job.id !== id));
+
+      toast.success("Job deleted", {id: toastId});
+    } catch(error: any) {
+      toast.error("Failed to delete job", {id: toastId});
+    }
   }
 
   const handleUpdateJob = (updatedJob: Job) => {
@@ -92,6 +103,30 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center p-8">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            fontSize: "14px",
+            fontWeight: "500",
+            borderRadius: "8px",
+            padding: "12px 16px"
+          },
+          success: {
+            style: {
+              background: "#16a34a",
+              color: "#fff",
+            },
+          },
+          error: {
+            style: {
+              background: "#dc2626",
+              color: "#fff",
+            },
+          },
+        }}
+      />
       <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-6">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 text-center">Job Tracker</h1>

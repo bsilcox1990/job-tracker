@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Job } from "../types/Job";
+import toast from "react-hot-toast";
 
 interface Props {
     onAdd: (job: Job) => void
@@ -10,9 +11,11 @@ export default function JobForm({onAdd}: Props){
     const [role, setRole] = useState("");
     const [notes, setNotes] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        const toastId = toast.loading("Creating job...");
 
+        try {
         const response = await fetch("http://localhost:5000/jobs", {
             method: "POST",
             headers: {
@@ -29,10 +32,17 @@ export default function JobForm({onAdd}: Props){
         const newJob = await response.json();
 
         onAdd(newJob);
-    
+
+        toast.success("Job added!", {id: toastId});
+
         setCompany("");
         setRole("");
         setNotes("");
+        
+        } catch(error: any) {
+            toast.error("Failed to add job", {id: toastId});
+        }
+    
     }
 
 
