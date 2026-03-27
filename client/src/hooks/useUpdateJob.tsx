@@ -3,17 +3,17 @@ import type { Job } from "../types/Job";
 
 type UseUpdateJobReturn = {
     updateJob: (job: Job) => Promise<Job>;
-    loading: boolean;
+    updatingId: number | null;
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export function useUpdateJob(): UseUpdateJobReturn {
-    const [loading, setLoading] = useState(false);
+export default function useUpdateJob(): UseUpdateJobReturn {
+    const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const updateJob = async (job: Job): Promise<Job>=> {
-        setLoading(true);
+        setUpdatingId(job.id);
         setError(null);
 
         try{
@@ -35,9 +35,9 @@ export function useUpdateJob(): UseUpdateJobReturn {
             setError(err.message || "Failed to update job");
             throw err;
         } finally {
-            setLoading(false);
+            setUpdatingId(null);
         }
     };
 
-    return { updateJob, loading, error, setError };
+    return { updateJob, updatingId, error, setError };
 }

@@ -1,10 +1,15 @@
 import { useState } from "react";
 
-export default function useDeleteJob() {
-    const [loading, setLoading] = useState(false);
+type UseDeleteJobReturn = {
+    deleteJob: (id: number) => Promise<void>;
+    deletingId: number | null;
+}
+
+export default function useDeleteJob(): UseDeleteJobReturn {
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const deleteJob = async (id: number) => {
-        setLoading(true);
+        setDeletingId(id);
 
         try {
             const res = await fetch(`http://localhost:5000/jobs/${id}`, {
@@ -13,9 +18,9 @@ export default function useDeleteJob() {
 
             if(!res.ok) throw new Error("Failed to delete job");
         } finally {
-            setLoading(false);
+            setDeletingId(null);
         }
     };
 
-    return { deleteJob, loading};
+    return { deleteJob, deletingId};
 }

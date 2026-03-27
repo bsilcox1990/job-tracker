@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Job } from './types/Job'
 import JobForm from './components/JobForm'
 import './App.css'
@@ -7,14 +7,16 @@ import { Toaster } from 'react-hot-toast'
 import toast from "react-hot-toast";
 import useDeleteJob from "./hooks/useDeleteJob";
 import useJobs from './hooks/useJobs'
+import useUpdateJob from './hooks/useUpdateJob'
 
 function App() {
-  const { jobs, loading, setJobs } = useJobs();
+  const { jobs, loading, setJobs, fetchJobs } = useJobs();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const { deleteJob, loading: deleting } = useDeleteJob();
+  const { updateJob } = useUpdateJob();
+  const { deleteJob, deletingId } = useDeleteJob();
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -37,7 +39,7 @@ function App() {
     
       await deleteJob(id);
 
-      setJobs(jobs.filter((job) => job.id !== id));
+      await fetchJobs();
 
       toast.success("Job deleted", {id: toastId});
     } catch(error: any) {
@@ -54,18 +56,7 @@ function App() {
   const handleStatusChange = async (id: number, status: string) => {
     const job = jobs.find((j) => j.id === id);
 
-    const response = await fetch(`http://localhost:5000/jobs/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...job,
-        status
-      }),
-    })
-
-    const updatedJob = await response.json();
+    const updatedJob = await updateJob({...job, status} as Job);
 
     setJobs((prev) =>
       prev.map((j) => (j.id === id ? updatedJob : j)) 
@@ -199,9 +190,10 @@ function App() {
                     </div>
                     <button
                       onClick={() => handleDelete(job.id)}
+                      disabled={deletingId === job.id}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
                     >
-                      Delete
+                      {deletingId === job.id ? "Deleting..." : "Delete"}
                     </button>
                   </div>
                 </div>

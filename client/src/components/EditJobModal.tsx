@@ -1,6 +1,6 @@
 import type { Job } from "../types/Job"
 import { useState, useEffect, useRef } from "react";
-import { useUpdateJob } from "../hooks/useUpdateJob";
+import useUpdateJob from "../hooks/useUpdateJob";
 import toast from "react-hot-toast";
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 
 export default function EditJobModal({job, onClose, onSave }: Props){
     const [form, setForm] = useState({...job, notes: job.notes || ""});
-    const { updateJob, loading, error, setError } = useUpdateJob();
+    const { updateJob, updatingId, error, setError } = useUpdateJob();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export default function EditJobModal({job, onClose, onSave }: Props){
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && !loading) {
+            if (e.key === "Escape" && !updatingId) {
                 onClose();
             }
         };
@@ -60,13 +60,13 @@ export default function EditJobModal({job, onClose, onSave }: Props){
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         }
-    }, [onClose, loading]);
+    }, [onClose, updatingId]);
 
     return(
         <div 
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
             onClick={() => {
-                if (!loading) onClose();
+                if (!updatingId) onClose();
             }}
         >
             <div 
@@ -138,10 +138,10 @@ export default function EditJobModal({job, onClose, onSave }: Props){
                         </button>
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={updatingId !== null}
                             className={saveButton}
                         >
-                            {loading ? "Saving..." : "Save"}
+                            {updatingId !== null ? "Saving..." : "Save"}
                         </button>
                     </div>
                 </form>
