@@ -9,15 +9,17 @@ import toast from "react-hot-toast";
 import useDeleteJob from "./hooks/useDeleteJob";
 import useJobs from './hooks/useJobs'
 import useUpdateJob from './hooks/useUpdateJob'
+import useCreateJob from './hooks/useCreateJob';
 
 function App() {
-  const { jobs, loading, setJobs, fetchJobs } = useJobs();
+  const { jobs, loading, fetchJobs } = useJobs();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const { updateJob, updatingId, error, setError } = useUpdateJob({ onSuccess: fetchJobs });
   const { deleteJob, deletingId } = useDeleteJob({ onSuccess: fetchJobs });
+  const { createJob, loading: creating } = useCreateJob({onSuccess: fetchJobs });
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -28,10 +30,6 @@ function App() {
 
     return (job.company || "").toLowerCase().includes(searchTerm.toLowerCase());
   })
-
-  const addJob = (job: Job) => {
-    setJobs([...jobs, job]);
-  }
 
   const handleDelete = async (id: number) => {
     const toastId = toast.loading("Deleting job...");
@@ -118,7 +116,10 @@ function App() {
           </div>
         </div>
         <h2 className="text-3xl font-bold text-center mb-6">
-          <JobForm onAdd={addJob} />
+          <JobForm 
+            onCreate={createJob}
+            loading={creating}
+          />
 
           <div className="flex items-center gap-3 mb-6 bg-gray-50 p-3 rounded-lg">
 

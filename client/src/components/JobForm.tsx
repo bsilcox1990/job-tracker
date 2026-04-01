@@ -1,37 +1,34 @@
 import { useState } from "react";
-import type { Job } from "../types/Job";
+import type { NewJob, Job } from "../types/Job";
 import toast from "react-hot-toast";
-import useCreateJob from "../hooks/useCreateJob";
 
 interface Props {
-    onAdd: (job: Job) => void
+    onCreate: (job: NewJob) => Promise<Job>;
+    loading: boolean;
 }
 
-export default function JobForm({onAdd}: Props){
+export default function JobForm({onCreate, loading}: Props){
     const [company, setCompany] = useState("");
     const [role, setRole] = useState("");
     const [notes, setNotes] = useState("");
-    const { createJob, loading } = useCreateJob();
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         const toastId = toast.loading("Creating job...");
 
         try {
-        const newJob = await createJob({
-            company,
-            role,
-            notes,
-            status: "Applied"
+            await onCreate({
+                company,
+                role,
+                notes,
+                status: "Applied"
         });
 
-        onAdd(newJob);
+            toast.success("Job added!", {id: toastId});
 
-        toast.success("Job added!", {id: toastId});
-
-        setCompany("");
-        setRole("");
-        setNotes("");
+            setCompany("");
+            setRole("");
+            setNotes("");
 
         } catch(error: any) {
             toast.error("Failed to add job", {id: toastId});
