@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Job } from './types/Job'
+import type { JobStatus } from './types/Job';
 import JobForm from './components/JobForm'
 import './App.css'
 import EditJobModal from './components/EditJobModal'
@@ -15,8 +16,8 @@ function App() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const { updateJob } = useUpdateJob();
-  const { deleteJob, deletingId } = useDeleteJob();
+  const { updateJob, updatingId, error, setError } = useUpdateJob({ onSuccess: fetchJobs });
+  const { deleteJob, deletingId } = useDeleteJob({ onSuccess: fetchJobs });
   const appliedCount = jobs.filter((job) => job.status === "Applied").length;
   const interviewCount = jobs.filter((job) => job.status === "Interview").length;
   const offerCount = jobs.filter((job) => job.status === "Offer").length;
@@ -36,31 +37,19 @@ function App() {
     const toastId = toast.loading("Deleting job...");
 
     try {
-    
       await deleteJob(id);
-
-      await fetchJobs();
-
       toast.success("Job deleted", {id: toastId});
     } catch(error: any) {
       toast.error("Failed to delete job", {id: toastId});
     }
   }
 
-  const handleUpdateJob = (updatedJob: Job) => {
-    setJobs((prev) => 
-      prev.map((job) => (job.id === updatedJob.id ? updatedJob : job))
-    );
-  }
-
-  const handleStatusChange = async (id: number, status: string) => {
+  const handleStatusChange = async (id: number, status: JobStatus) => {
     const job = jobs.find((j) => j.id === id);
 
-    const updatedJob = await updateJob({...job, status} as Job);
+    if(!job) return;
 
-    setJobs((prev) =>
-      prev.map((j) => (j.id === id ? updatedJob : j)) 
-    );
+    await updateJob({...job, status });
   }
 
   const getStatusColor = (status: string) => {
@@ -179,7 +168,7 @@ function App() {
                     <div className={`px-2 py-1 rounded text-sm ${getStatusColor(job.status)}`}>
                       <select
                         value={job.status || "Applied"}
-                        onChange={(e) => handleStatusChange(job.id, e.target.value)}
+                        onChange={(e) => handleStatusChange(job.id, e.target.value as Job["status"])}
                         className="bg-transparent outline-none"
                       >
                         <option value="Applied">Applied</option>
@@ -230,7 +219,10 @@ function App() {
               <EditJobModal
                 job={editingJob}
                 onClose={() => setEditingJob(null)}
-                onSave={handleUpdateJob}
+                onSave={updateJob}
+                updatingId={updatingId}
+                error={error}
+                setError={setError}
                />
             )}
         </h2>

@@ -14,3 +14,5 @@ export interface NewJob {
     notes?: string
     status: string
 }
+
+export type JobStatus = "Applied" | "Interview" | "Offer" | "Rejected";

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import type { NewJob, Job } from "../types/Job";
 
-export default function useCreateJob() {
+type UseCreateJobProps = {
+    onSuccess?: () => void;
+}
+
+export default function useCreateJob({ onSuccess }: UseCreateJobProps = {}) {
     const [loading, setLoading ] = useState(false);
 
     const createJob = async (job: NewJob): Promise<Job> => {
@@ -18,7 +22,11 @@ export default function useCreateJob() {
 
             if(!res.ok) throw new Error("Failed to create job");
 
-            return await res.json();
+            const data = await res.json();
+
+            onSuccess?.();
+
+            return data;
         } finally {
             setLoading(false);
         }

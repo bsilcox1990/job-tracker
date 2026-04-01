@@ -5,7 +5,11 @@ type UseDeleteJobReturn = {
     deletingId: number | null;
 }
 
-export default function useDeleteJob(): UseDeleteJobReturn {
+type UseDeleteJobProps = {
+    onSuccess?: () => void;
+}
+
+export default function useDeleteJob({ onSuccess }: UseDeleteJobProps = {}): UseDeleteJobReturn {
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const deleteJob = async (id: number) => {
@@ -17,6 +21,8 @@ export default function useDeleteJob(): UseDeleteJobReturn {
             });
 
             if(!res.ok) throw new Error("Failed to delete job");
+
+            onSuccess?.();
         } finally {
             setDeletingId(null);
         }

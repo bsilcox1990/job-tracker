@@ -6,9 +6,14 @@ type UseUpdateJobReturn = {
     updatingId: number | null;
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
+    onSuccess?: () => void;
 }
 
-export default function useUpdateJob(): UseUpdateJobReturn {
+type UseUpdateJobProps = {
+    onSuccess?: () => void;
+}
+
+export default function useUpdateJob({ onSuccess }: UseUpdateJobProps = {}): UseUpdateJobReturn {
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +35,9 @@ export default function useUpdateJob(): UseUpdateJobReturn {
             }
 
             const data = await res.json();
+
+            onSuccess?.();
+
             return data;
         } catch (err: any) {
             setError(err.message || "Failed to update job");
