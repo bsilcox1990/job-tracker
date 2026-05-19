@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiFetch } from "../helpers/api";
 
 type UseDeleteJobReturn = {
     deleteJob: (id: number) => Promise<void>;
@@ -16,11 +17,9 @@ export default function useDeleteJob({ onSuccess }: UseDeleteJobProps = {}): Use
         setDeletingId(id);
 
         try {
-            const res = await fetch(`http://localhost:5000/jobs/${id}`, {
+            await apiFetch(`/jobs/${id}`, {
                 method: "DELETE",
             });
-
-            if(!res.ok) throw new Error("Failed to delete job");
 
             onSuccess?.();
         } finally {

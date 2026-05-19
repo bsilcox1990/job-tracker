@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Job } from "../types/Job";
+import { apiFetch } from "../helpers/api";
 
 type UseUpdateJobReturn = {
     updateJob: (job: Job) => Promise<Job>;
@@ -22,19 +23,10 @@ export default function useUpdateJob({ onSuccess }: UseUpdateJobProps = {}): Use
         setError(null);
 
         try{
-            const res = await fetch(`http://localhost:5000/jobs/${job.id}`, {
+            const data = await apiFetch(`/jobs/${job.id}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify(job),
             });
-
-            if(!res.ok) {
-                throw new Error("Failed to update job");
-            }
-
-            const data = await res.json();
 
             onSuccess?.();
 

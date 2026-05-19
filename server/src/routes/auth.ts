@@ -9,6 +9,14 @@ const router = Router();
 router.post("/register", async (req, res) => {
     const { email, password } = req.body;
 
+    if(!email?.trim() || !password?.trim()) {
+        return res.status(400).json({ error: "Email and password are required"});
+    }
+
+    if(password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters"});
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -37,7 +45,7 @@ router.post("/register", async (req, res) => {
     } catch (err: any) {
 
         if (err.code === '23505') {
-            return res.status(400).json({ error: "User already in use" });
+            return res.status(400).json({ error: "User already exists" });
         }
 
         console.error(err);
@@ -47,6 +55,10 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     const {email, password} = req.body;
+
+    if(!email?.trim() || !password?.trim()) {
+        return res.status(400).json({ error: "Email and password are required"});
+    }
 
     try {
         const result = await pool.query(

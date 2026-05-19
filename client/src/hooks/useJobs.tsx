@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Job } from "../types/Job";
+import { apiFetch } from "../helpers/api";
 
 type UseJobsReturn = {
     jobs: Job[];
@@ -15,12 +16,16 @@ export default function useJobs(): UseJobsReturn {
     const fetchJobs = async () => {
         setLoading(true);
 
-        const res = await fetch("http://localhost:5000/jobs");
-        const data = await res.json();
-
-        setJobs(data);
-        setLoading(false);
-    };
+        try {
+            const data = await apiFetch("/jobs");
+            setJobs(data);
+        } catch (err) {
+            console.error(err);
+            setJobs([]);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
         fetchJobs();
