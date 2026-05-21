@@ -16,6 +16,11 @@ export default function JobForm({onCreate, loading}: Props){
         e.preventDefault();
         const toastId = toast.loading("Creating job...");
 
+        if(!company.trim() || !role.trim()){
+            toast.error("Company and role are required");
+            return;
+        }
+
         try {
             await onCreate({
                 company,

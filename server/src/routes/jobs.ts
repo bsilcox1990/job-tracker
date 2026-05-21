@@ -8,13 +8,17 @@ router.post("/", authMiddleware, async (req, res) => {
     try{
         const { company, role, status, notes } = req.body;
 
+        if(!company?.trim() || !role?.trim()){
+            return res.status(400).json({error: "Company and role are required"});
+        }
+
         const userId = (req as any).user.userId;
 
         const result = await pool.query(
             `INSERT INTO jobs (company, role, status, notes, user_id)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *`,
-            [company, role, status, notes, userId]
+            [company.trim(), role.trim(), status, notes?.trim() || null, userId]
         );
 
         res.json(result.rows[0]);
