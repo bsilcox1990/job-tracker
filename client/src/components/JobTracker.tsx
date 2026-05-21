@@ -123,7 +123,7 @@ function JobTracker() {
 
                 <button
                     onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer"
                 >
                     Logout
                 </button>
@@ -173,7 +173,7 @@ function JobTracker() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               <option value="All">All</option>
               <option value="Applied">Applied</option>
@@ -193,7 +193,7 @@ function JobTracker() {
             filteredJobs.map((job) => (
               <div 
                 key={job.id}
-                className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm"
+                className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition"
               >
                 <div className="flex justify-between items-center">
                   <div>
@@ -205,7 +205,7 @@ function JobTracker() {
                       <select
                         value={job.status || "Applied"}
                         onChange={(e) => handleStatusChange(job.id, e.target.value as Job["status"])}
-                        className="bg-transparent outline-none"
+                        className="bg-transparent outline-none cursor-pointer"
                       >
                         <option value="Applied">Applied</option>
                         <option value="Interview">Interview</option>
@@ -216,7 +216,7 @@ function JobTracker() {
                     <button
                       onClick={() => handleDelete(job.id)}
                       disabled={deletingId === job.id}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm cursor-pointer"
                     >
                       {deletingId === job.id ? "Deleting..." : "Delete"}
                     </button>
@@ -242,7 +242,7 @@ function JobTracker() {
                 </div>
 
                 {expandedId === job.id && job.notes && (
-                  <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                  <div className="mt-2 p-2 bg-gray-50 rounded text-sm rounded-sm">
                     <div className="text-xs text-gray-500 mb-1">Notes</div>
                      {job.notes}
                   </div>
